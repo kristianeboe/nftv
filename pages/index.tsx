@@ -105,14 +105,13 @@ function HomePage() {
       $limit: 50,
       $offset: 0,
     },
-    requestPolicy: "network-only",
   });
 
   useEffect(() => {
     console.log("creating interval");
     const intervalId = setInterval(() => {
       console.log("rexecuting query");
-      reexecuteQuery();
+      reexecuteQuery({ requestPolicy: "network-only" });
     }, 10 * 1000);
     return () => clearInterval(intervalId);
   }, []);
