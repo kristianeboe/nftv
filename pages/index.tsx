@@ -105,6 +105,7 @@ function HomePage() {
       $limit: 50,
       $offset: 0,
     },
+    requestPolicy: "network-only",
   });
 
   useEffect(() => {
