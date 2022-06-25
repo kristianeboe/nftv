@@ -106,7 +106,7 @@ export function Navbar({ links }: NavbarProps) {
   ));
 
   return (
-    <Header height={56} mb={120}>
+    <Header height={56} mb={40}>
       <Container className={classes.inner}>
         <Burger
           opened={opened}

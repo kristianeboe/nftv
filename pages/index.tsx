@@ -1,4 +1,4 @@
-import { Container, Text } from "@mantine/core";
+import { Container, Paper, Text } from "@mantine/core";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
@@ -7,10 +7,20 @@ import { FeedCard } from "../components/FeedCard";
 import { Navbar } from "../components/Navbar";
 import styles from "../styles/Home.module.css";
 import { SimpleGrid } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useWindowScroll } from "@mantine/hooks";
+import { useIntersection } from "@mantine/hooks";
+import Marquee from "react-fast-marquee";
+import { InView } from "react-intersection-observer";
+
+const auctionHouses = {
+  hola: "Holaplex",
+  "3o9d13qUvEuuauhFrVom1vuCzgNsJifeaBYDPquaT73Y": "Open Sea",
+};
 
 const FEED_EVENT_BASE_FRAGMENT = `
     feedEventId
+    createdAt
     walletAddress
     profile {
       handle
@@ -44,9 +54,10 @@ const NFT_FRAGMENT = `
 
 // feedEvents(wallet: "ALphA7iWKMUi8owfbSKFm2i3BxG6LbasYYXt8sP85Upz", limit: 25, offset: 0, excludeTypes: ["follow"]) {
 // latestFeedEvents(limit: 25, offset: 0, excludeTypes: ["mint","follow"]) {
+// (args: { fetchOlderEvents: boolean; cursor: Date }) =>
 const RAW_FEED_QUERY = `
-  query rawFeed {
-    latestFeedEvents(limit: 50, offset: 0) {
+  query rawFeed($limit: Int!, $isForward: Boolean!, $cursor: String! ) {
+    latestFeedEvents(limit: $limit, isForward: $isForward, cursor: $cursor , includeTypes: ["mint"] ) {
       __typename
       ... on MintEvent {
         ${FEED_EVENT_BASE_FRAGMENT}
@@ -81,11 +92,19 @@ interface FeedQuery {
 interface Nft {
   name: string;
   image: string;
+  creators: {
+    address: string;
+    profile?: {
+      handle: string;
+      profileImageUrl: string;
+    };
+  }[];
 }
 
 export interface FeedEvent {
   __typename: string;
   feedEventId: string;
+  createdAt: string;
   nft?: Nft;
   purchase?: {
     nft?: Nft;
@@ -99,19 +118,37 @@ export interface FeedEvent {
 }
 
 function HomePage() {
+  const [lastQueryTimeStamp, setLastQueryTimeStamp] = useState(() =>
+    new Date().toISOString()
+  );
+  const [queryVars, setQueryVars] = useState({
+    limit: 8,
+    isForward: false,
+    cursor: lastQueryTimeStamp,
+  });
+  const [timeTofetchNewEvents, setTimeToFetchNewEvents] = useState(false);
   const [result, reexecuteQuery] = useQuery<FeedQuery>({
     query: RAW_FEED_QUERY,
-    variables: {
-      $limit: 50,
-      $offset: 0,
-    },
+    variables: queryVars,
+    // pause: true,
+    // ({
+    //   fetchOlderEvents: true,
+    //   cursor: new Date(),
+    // }),
   });
 
+  // const [newEvents, getMoreNewEvents] = useQuery<FeedQuery>({
+  //   query: RAW_FEED_QUERY({
+  //     fetchOlderEvents: false,
+  //     cursor: new Date(),
+  //   }),
+  // });
+
   useEffect(() => {
-    console.log("creating interval");
+    // console.log("creating interval");
     const intervalId = setInterval(() => {
-      console.log("rexecuting query");
-      reexecuteQuery({ requestPolicy: "network-only" });
+      // console.log("rexecuting query");
+      // reexecuteQuery({ requestPolicy: "network-only" });
     }, 10 * 1000);
     return () => clearInterval(intervalId);
   }, []);
@@ -122,10 +159,10 @@ function HomePage() {
 
   useEffect(() => {
     const feedEvents = data?.latestFeedEvents ?? [];
-    console.log("fetch effect", {
-      fetching,
-      feedEvents,
-    });
+    // console.log("fetch effect", {
+    //   fetching,
+    //   feedEvents,
+    // });
     if (!fetching && data) {
       const newEvents = feedEvents
         .filter(
@@ -142,13 +179,34 @@ function HomePage() {
             fe.__typename !== "FollowEvent" &&
             !events.some((e) => fe.feedEventId === e.feedEventId)
         );
-      console.log("found", newEvents.length, "new events");
-      const allEvents = [...newEvents, ...events];
-      console.log(allEvents.length, "events total");
+      // console.log("found", newEvents.length, "new events");
+      const allEvents = [...events, ...newEvents];
+      // console.log(allEvents.length, "events total");
       setEvents(allEvents);
     }
   }, [result]);
 
+  const fetchMoreIndex = events.length - 3;
+
+  function fetchMoreEvents(inView: boolean) {
+    if (inView) {
+      console.log("fetch more", {
+        events,
+        lastEvent: events.at(-1),
+        lastEventTs: events.at(-1)?.createdAt!,
+      });
+      setTimeToFetchNewEvents(inView);
+      setQueryVars({
+        ...queryVars,
+        cursor: events.at(-1)?.createdAt!,
+      });
+      reexecuteQuery({
+        requestPolicy: "network-only",
+      });
+    }
+  }
+
+  // console.log("test", observedEntry);
   // console.log("events", events);
   return (
     <div>
@@ -164,18 +222,97 @@ function HomePage() {
           },
         ]}
       />
-
-      <Container>
-        {fetching && <Text align="center">Loading...</Text>}
+      <p>Total events: {events.length}</p>
+      <div>
+        {/* {fetching && <Text align="center">Loading...</Text>} */}
         {error && <Text align="center">{error.message}</Text>}
-        <SimpleGrid cols={1}>
+
+        {/* <div
+          // className={
+          //   "grid grid-flow-col gap-8 overflow-x-scroll py-2 pl-8 no-scrollbar"
+          // }
+          style={{
+            display: "grid",
+            gridAutoFlow: "column",
+            gap: "24px",
+            margin: "0 24px",
+            overflowX: "scroll",
+          }}
+        >
+          {events.map((fi, i) => (
+            <div
+              ref={i === fetchMoreIndex ? ref : null}
+              data-has-ref={i === fetchMoreIndex ? true : false}
+              className="w-96 flex-shrink-0"
+              key={i}
+            >
+              {i === fetchMoreIndex && (
+                <InView
+                  as="div"
+                  threshold={0.1}
+                  onChange={(inView) => console.log(i, "in view", inView)}
+                ></InView>
+              )}
+              <FeedCard feedEvent={fi} key={fi.feedEventId} />
+              <p>{i}</p>
+              {observedEntry?.isIntersecting && <div>Has ref</div>}
+            </div>
+          ))}
+        </div> */}
+
+        <Marquee
+          speed={events.length ? 200 : 0}
+          gradient={false}
+          // pauseOnHover={true}
+        >
+          <div
+            // className={
+            //   "grid grid-flow-col gap-8 overflow-x-scroll py-2 pl-8 no-scrollbar"
+            // }
+            style={{
+              display: "grid",
+              gridAutoFlow: "column",
+              gap: "24px",
+              margin: "0 24px",
+              // overflow: "scroll",
+            }}
+          >
+            {events.map((fi, i) => (
+              <div
+                data-has-ref={i === fetchMoreIndex ? true : false}
+                className="w-96 flex-shrink-0"
+                key={i}
+              >
+                {i === fetchMoreIndex && (
+                  <InView
+                    as="div"
+                    threshold={0.1}
+                    onChange={(inView) =>
+                      console.log(i, "in view", inView) ||
+                      fetchMoreEvents(inView)
+                    }
+                  ></InView>
+                )}
+                <p>
+                  {i}{" "}
+                  {i === fetchMoreIndex && timeTofetchNewEvents
+                    ? "- Time to fetch new events"
+                    : ""}
+                </p>
+                <FeedCard feedEvent={fi} key={fi.feedEventId} />
+              </div>
+            ))}
+          </div>
+        </Marquee>
+
+        {/* <SimpleGrid cols={1}>
           {events.map((fe) => (
             <div key={fe.feedEventId} style={{ width: 600, margin: "auto" }}>
               <FeedCard key={fe.feedEventId} feedEvent={fe} />
             </div>
           ))}
-        </SimpleGrid>
-      </Container>
+        </SimpleGrid> */}
+      </div>
     </div>
   );
 }

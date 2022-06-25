@@ -69,15 +69,22 @@ export function FeedCard(props: { feedEvent: FeedEvent }) {
     </Center>
   ));
 
+  const creator = nft.creators[0];
+
   return (
     <Card withBorder radius="md" className={classes.card}>
       <Card.Section className={classes.imageSection}>
-        <Image width={600} src={nft.image} alt={nft.name} />
+        <Image width={400} height={400} src={nft.image} alt={nft.name} />
       </Card.Section>
 
       <Group position="apart" mt="md">
         <div>
           <Text weight={500}>{nft.name}</Text>
+          <Text size={"sm"} weight={300}>
+            By{" "}
+            {(creator.profile?.handle && "@" + creator.profile?.handle) ||
+              creator.address.slice(0, 4) + "..."}
+          </Text>
         </div>
         <Badge variant="outline">{props.feedEvent.__typename}</Badge>
       </Group>
