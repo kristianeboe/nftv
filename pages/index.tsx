@@ -14,11 +14,7 @@ import Marquee from "react-fast-marquee";
 import { InView } from "react-intersection-observer";
 import { showNotification } from "@mantine/notifications";
 import { StatsGroup } from "../components/Stats";
-
-const auctionHouses = {
-  hola: "Holaplex",
-  "3o9d13qUvEuuauhFrVom1vuCzgNsJifeaBYDPquaT73Y": "Open Sea",
-};
+import { ButtonsGroup } from "../components/ButtonGroup";
 
 const FEED_EVENT_BASE_FRAGMENT = `
     feedEventId
@@ -26,7 +22,7 @@ const FEED_EVENT_BASE_FRAGMENT = `
     walletAddress
     profile {
       handle
-      profileImageUrl
+      profileImageUrlLowres
     }
 `;
 const NFT_FRAGMENT = `
@@ -48,7 +44,7 @@ const NFT_FRAGMENT = `
         position
         profile {
           handle
-          profileImageUrl
+          profileImageUrlLowres
         }
       }
       address
@@ -57,8 +53,8 @@ const NFT_FRAGMENT = `
 `;
 
 const RAW_FEED_QUERY = `
-  query rawFeed($limit: Int!, $isForward: Boolean!, $cursor: String! ) {
-    latestFeedEvents(limit: $limit, isForward: $isForward, cursor: $cursor , includeTypes: ["mint"] ) {
+  query rawFeed($limit: Int!, $isForward: Boolean!, $cursor: String!, $includeTypes: [String!] ) {
+    latestFeedEvents(limit: $limit, isForward: $isForward, cursor: $cursor, includeTypes: $includeTypes ) {
       __typename
       ... on MintEvent {
         ${FEED_EVENT_BASE_FRAGMENT}
@@ -67,18 +63,21 @@ const RAW_FEED_QUERY = `
       ... on OfferEvent {
         ${FEED_EVENT_BASE_FRAGMENT}
         offer {
+          auctionHouse
           ${NFT_FRAGMENT}
         }
       }
       ... on PurchaseEvent {
         ${FEED_EVENT_BASE_FRAGMENT}
         purchase {
+          auctionHouse
           ${NFT_FRAGMENT}
         }
       }
       ... on ListingEvent {
         ${FEED_EVENT_BASE_FRAGMENT}
         listing {
+          auctionHouse
           ${NFT_FRAGMENT}
         }
       }
@@ -99,7 +98,7 @@ interface Nft {
     address: string;
     profile?: {
       handle: string;
-      profileImageUrl: string;
+      profileImageUrlLowres: string;
     };
   }[];
 }
@@ -109,14 +108,18 @@ export interface FeedEvent {
   feedEventId: string;
   createdAt: string;
   nft?: Nft;
+  auctionHouse?: string;
   purchase?: {
     nft?: Nft;
+    auctionHouse?: string;
   };
   listing?: {
     nft?: Nft;
+    auctionHouse?: string;
   };
   offer?: {
     nft?: Nft;
+    auctionHouse?: string;
   };
 }
 
@@ -130,6 +133,7 @@ function HomePage() {
     limit: fetchLimit,
     isForward: false,
     cursor: lastQueryTimeStamp,
+    includeTypes: ["mint"],
   });
   const [timeTofetchNewEvents, setTimeToFetchNewEvents] = useState(false);
   const [result, reexecuteQuery] = useQuery<FeedQuery>({
@@ -184,6 +188,10 @@ function HomePage() {
       .map((fe) => ({
         ...fe,
         nft: fe.nft || fe.purchase?.nft || fe.listing?.nft || fe.offer?.nft,
+        auctionHouse:
+          fe.purchase?.auctionHouse ||
+          fe.listing?.auctionHouse ||
+          fe.offer?.auctionHouse,
       }));
     if (ne?.length) {
       setNewEvents(ne);
@@ -199,18 +207,22 @@ function HomePage() {
     if (!fetching && data) {
       const newEvents = feedEvents
         // make unique
-        .filter(
-          (v, i, a) =>
-            v.nft && a.findIndex((v2) => v2.feedEventId === v.feedEventId) === i
-        )
         // unify interface
         .map((fe) => ({
           ...fe,
           nft: fe.nft || fe.purchase?.nft || fe.listing?.nft || fe.offer?.nft,
-        }));
+          auctionHouse:
+            fe.purchase?.auctionHouse ||
+            fe.listing?.auctionHouse ||
+            fe.offer?.auctionHouse,
+        }))
+        .filter(
+          (v, i, a) =>
+            v.nft && a.findIndex((v2) => v2.feedEventId === v.feedEventId) === i
+        );
       setEventsLoaded(eventsLoaded + newEvents.length);
       const allEvents = [
-        ...events.slice(events.length - Math.floor(fetchLimit / 2)),
+        ...events, // .slice(events.length - Math.floor(fetchLimit / 2)),
         ...newEvents,
       ];
 
@@ -252,6 +264,40 @@ function HomePage() {
             },
           ]}
         />
+        {/* <Container mb={40}>
+          <ButtonsGroup
+            buttons={[
+              {
+                label: "Mints",
+                onClick: () => {
+                  setQueryVars({ ...queryVars, includeTypes: ["mint"] }),
+                    reexecuteQuery({ requestPolicy: "network-only" });
+                },
+              },
+              {
+                label: "Offers",
+                onClick: () => {
+                  setQueryVars({ ...queryVars, includeTypes: ["offer"] }),
+                    reexecuteQuery({ requestPolicy: "network-only" });
+                },
+              },
+              {
+                label: "Purchases",
+                onClick: () => {
+                  setQueryVars({ ...queryVars, includeTypes: ["purchase"] }),
+                    reexecuteQuery({ requestPolicy: "network-only" });
+                },
+              },
+              {
+                label: "Listings",
+                onClick: () => {
+                  setQueryVars({ ...queryVars, includeTypes: ["listing"] }),
+                    reexecuteQuery({ requestPolicy: "network-only" });
+                },
+              },
+            ]}
+          />
+        </Container> */}
         {/* <p>Total events: {fetching ? "fetching" : events.length}</p>
       <p>
         New events since arrival:{" "}

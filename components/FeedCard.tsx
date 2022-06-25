@@ -72,6 +72,10 @@ export function FeedCard(props: { feedEvent: FeedEvent }) {
 
   const creator = nft.creators[0];
 
+  if (!creator) {
+    console.log(props.feedEvent);
+  }
+
   return (
     <Card withBorder radius="md" className={classes.card}>
       <Card.Section className={classes.imageSection}>
@@ -83,12 +87,17 @@ export function FeedCard(props: { feedEvent: FeedEvent }) {
           <Text weight={500}>{nft.name}</Text>
           <Text size={"sm"} weight={300}>
             By{" "}
-            {(creator.profile?.handle && "@" + creator.profile?.handle) ||
-              creator.address.slice(0, 4) + "..."}
+            {(creator?.profile?.handle && "@" + creator.profile?.handle) ||
+              creator?.address.slice(0, 4) + "..." ||
+              ""}
           </Text>
         </div>
-        <div>
-          <Badge variant="outline">{props.feedEvent.__typename}</Badge>
+        <div style={{ textAlign: "right" }}>
+          <Badge variant="outline">
+            {props.feedEvent.__typename}
+            {/* {auctionHouses[props.feedEvent.auctionHouse || ""] ||
+              props.feedEvent.__typename} */}
+          </Badge>
           <Text weight={400}>
             {DateTime.fromISO(props.feedEvent.createdAt).toRelative()}
           </Text>
@@ -107,3 +116,13 @@ export function FeedCard(props: { feedEvent: FeedEvent }) {
     </Card>
   );
 }
+
+const auctionHouses: {
+  [id: string]: string;
+} = {
+  "": "",
+  "9SvsTjqk3YoicaYnC4VW1f8QAN9ku7QCCk6AyfUdzc9t": "Holaplex",
+  "3o9d13qUvEuuauhFrVom1vuCzgNsJifeaBYDPquaT73Y": "Open Sea",
+  GWErq8nJf5JQtohg5k7RTkiZmoCxvGBJqbMSfkrxYFFy: "?",
+  "3nAR6ZWZQA1uSNcRy3Qya2ihLU9dhaWKfZavoSiRrXzj": "?",
+};
