@@ -13,6 +13,7 @@ import { useIntersection } from "@mantine/hooks";
 import Marquee from "react-fast-marquee";
 import { InView } from "react-intersection-observer";
 import { showNotification } from "@mantine/notifications";
+import { StatsGroup } from "../components/Stats";
 
 const auctionHouses = {
   hola: "Holaplex",
@@ -55,9 +56,6 @@ const NFT_FRAGMENT = `
     }
 `;
 
-// feedEvents(wallet: "ALphA7iWKMUi8owfbSKFm2i3BxG6LbasYYXt8sP85Upz", limit: 25, offset: 0, excludeTypes: ["follow"]) {
-// latestFeedEvents(limit: 25, offset: 0, excludeTypes: ["mint","follow"]) {
-// (args: { fetchOlderEvents: boolean; cursor: Date }) =>
 const RAW_FEED_QUERY = `
   query rawFeed($limit: Int!, $isForward: Boolean!, $cursor: String! ) {
     latestFeedEvents(limit: $limit, isForward: $isForward, cursor: $cursor , includeTypes: ["mint"] ) {
@@ -122,12 +120,14 @@ export interface FeedEvent {
   };
 }
 
+const fetchLimit = 100;
+
 function HomePage() {
   const [lastQueryTimeStamp, setLastQueryTimeStamp] = useState(() =>
     new Date().toISOString()
   );
   const [queryVars, setQueryVars] = useState({
-    limit: 50,
+    limit: fetchLimit,
     isForward: false,
     cursor: lastQueryTimeStamp,
   });
@@ -141,11 +141,12 @@ function HomePage() {
   const { data, fetching, error } = result;
 
   const [events, setEvents] = useState<FeedEvent[]>([]);
+  const [eventsLoaded, setEventsLoaded] = useState(0);
 
   const [newEventsQuery, getMoreNewEvents] = useQuery<FeedQuery>({
     query: RAW_FEED_QUERY,
     variables: {
-      limit: 10,
+      limit: 50,
       isForward: true,
       cursor: events[0]?.createdAt,
     },
@@ -175,11 +176,15 @@ function HomePage() {
       gettingMoreItems,
       newData,
     });
-    const ne =
-      newData?.latestFeedEvents.filter(
+    const ne = newData?.latestFeedEvents
+      .filter(
         (v, i, a) =>
           v.nft && a.findIndex((v2) => v2.feedEventId === v.feedEventId) === i
-      ) || [];
+      )
+      .map((fe) => ({
+        ...fe,
+        nft: fe.nft || fe.purchase?.nft || fe.listing?.nft || fe.offer?.nft,
+      }));
     if (ne?.length) {
       setNewEvents(ne);
     }
@@ -203,14 +208,17 @@ function HomePage() {
           ...fe,
           nft: fe.nft || fe.purchase?.nft || fe.listing?.nft || fe.offer?.nft,
         }));
-
-      const allEvents = [...events.slice(events.length - 25), ...newEvents];
+      setEventsLoaded(eventsLoaded + newEvents.length);
+      const allEvents = [
+        ...events.slice(events.length - Math.floor(fetchLimit / 2)),
+        ...newEvents,
+      ];
 
       setEvents(allEvents);
     }
   }, [result]);
 
-  const fetchMoreIndex = events.length - 15;
+  const fetchMoreIndex = events.length - 5;
 
   function fetchMoreEvents(inView: boolean) {
     if (inView) {
@@ -227,87 +235,117 @@ function HomePage() {
 
   return (
     <div>
-      <Navbar
-        links={[
-          {
-            label: "Holaplex.com",
-            link: "https://holaplex.com",
-          },
-          {
-            label: "Indexer repo",
-            link: "https://github.com/holaplex/indexer",
-          },
-        ]}
-      />
-      {/* <p>Total events: {fetching ? "fetching" : events.length}</p>
+      <div
+        style={{
+          minHeight: "100vh",
+        }}
+      >
+        <Navbar
+          links={[
+            {
+              label: "Holaplex.com",
+              link: "https://holaplex.com",
+            },
+            {
+              label: "Indexer repo",
+              link: "https://github.com/holaplex/indexer",
+            },
+          ]}
+        />
+        {/* <p>Total events: {fetching ? "fetching" : events.length}</p>
       <p>
         New events since arrival:{" "}
         {gettingMoreItems ? "fetching" : newEvents.length}
       </p> */}
-      <div>
-        {/* {fetching && <Text align="center">Loading...</Text>} */}
-        {error && <Text align="center">{error.message}</Text>}
-        {events.length ? (
-          <Marquee
-            pauseOnClick={true}
-            speed={events.length ? 200 : 0}
-            gradient={false}
-            // pauseOnHover={true}
-          >
-            <div
-              // className={
-              //   "grid grid-flow-col gap-8 overflow-x-scroll py-2 pl-8 no-scrollbar"
-              // }
-              style={{
-                display: "grid",
-                gridAutoFlow: "column",
-                gap: "24px",
-                margin: "0 24px",
-                // overflow: "scroll",
-              }}
+        <div>
+          {/* {fetching && <Text align="center">Loading...</Text>} */}
+          {error && <Text align="center">{error.message}</Text>}
+          {events.length ? (
+            <Marquee
+              pauseOnClick={true}
+              speed={events.length ? 200 : 0}
+              gradient={false}
+              // pauseOnHover={true}
             >
-              {events.map((fi, i) => (
-                <div
-                  data-has-ref={i === fetchMoreIndex ? true : false}
-                  className="w-96 flex-shrink-0"
-                  key={i}
-                >
-                  {i === fetchMoreIndex && (
-                    <InView
-                      as="div"
-                      threshold={0.1}
-                      onChange={(inView) => fetchMoreEvents(inView)}
-                    ></InView>
-                  )}
-                  {/* <p>
+              <div
+                // className={
+                //   "grid grid-flow-col gap-8 overflow-x-scroll py-2 pl-8 no-scrollbar"
+                // }
+                style={{
+                  display: "grid",
+                  gridAutoFlow: "column",
+                  gap: "24px",
+                  margin: "0 24px",
+                  // overflow: "scroll",
+                }}
+              >
+                {events.map((fi, i) => (
+                  <div
+                    data-has-ref={i === fetchMoreIndex ? true : false}
+                    className="w-96 flex-shrink-0"
+                    key={i}
+                  >
+                    {i === fetchMoreIndex && (
+                      <InView
+                        as="div"
+                        threshold={0.1}
+                        onChange={(inView) => fetchMoreEvents(inView)}
+                      ></InView>
+                    )}
+                    {/* <p>
                     {i}{" "}
                     {i === fetchMoreIndex && timeTofetchNewEvents
                       ? "- Time to fetch new events"
                       : ""}
                   </p> */}
-                  <FeedCard feedEvent={fi} key={fi.feedEventId} />
-                </div>
-              ))}
-            </div>
-          </Marquee>
-        ) : (
-          <Center>
-            <LoadingSpinner />
-          </Center>
-        )}
-        {newEvents.length ? (
-          <Affix position={{ bottom: 20, right: 20 }}>
-            <Button
-              variant="gradient"
-              gradient={{ from: "#ed6ea0", to: "#ec8c69", deg: 35 }}
-              onClick={() => setEvents([...newEvents, ...events.slice(0, 10)])}
-            >
-              {newEvents.length} have been loaded since you arrived, click to
-              view them{" "}
-            </Button>
-          </Affix>
-        ) : null}
+                    <FeedCard feedEvent={fi} key={fi.feedEventId} />
+                  </div>
+                ))}
+              </div>
+            </Marquee>
+          ) : (
+            <Center>
+              <LoadingSpinner />
+            </Center>
+          )}
+          {newEvents.length ? (
+            <Affix position={{ bottom: 20, right: 20 }}>
+              <Button
+                variant="gradient"
+                gradient={{ from: "#ed6ea0", to: "#ec8c69", deg: 35 }}
+                onClick={() => {
+                  setEvents([...newEvents, ...events.slice(0, 10)]);
+                  setNewEvents([]);
+                }}
+              >
+                {newEvents.length} have been loaded since you arrived, click to
+                view them{" "}
+              </Button>
+            </Affix>
+          ) : null}
+        </div>
       </div>
+      <Container mb={200}>
+        <StatsGroup
+          data={[
+            {
+              title: "Events loaded",
+              stats: "" + eventsLoaded,
+              description: "",
+            },
+            {
+              title: "New events waiting",
+              stats: "" + newEvents.length,
+              description: "",
+            },
+            {
+              title: "Events displayed right now",
+              stats: "" + events.length,
+              description: "",
+            },
+          ]}
+        />
+      </Container>
     </div>
   );
 }

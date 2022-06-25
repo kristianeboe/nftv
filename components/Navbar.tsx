@@ -120,12 +120,17 @@ export function Navbar({ links }: NavbarProps) {
         </Group>
 
         {/* <MantineLogo /> */}
-        <h1>NFTstream</h1>
+        <h1>HolaTV</h1>
 
         <Group spacing={0} className={classes.social} position="right" noWrap>
-          <Button variant="gradient" gradient={{ from: "indigo", to: "cyan" }}>
-            Get your personal feed on Holaplex.com/alpha
-          </Button>
+          <a href="https://holaplex.com/alpha">
+            <Button
+              variant="gradient"
+              gradient={{ from: "indigo", to: "cyan" }}
+            >
+              Create your own feed
+            </Button>
+          </a>
 
           {/* <ActionIcon size="lg">
             <BrandTwitter size={18} />
