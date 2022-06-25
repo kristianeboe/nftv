@@ -10,6 +10,7 @@ import {
   Button,
 } from "@mantine/core";
 import { GasStation, Gauge, ManualGearbox, Users } from "tabler-icons-react";
+import { DateTime } from "luxon";
 import { FeedEvent } from "../pages";
 
 const useStyles = createStyles((theme) => ({
@@ -86,8 +87,23 @@ export function FeedCard(props: { feedEvent: FeedEvent }) {
               creator.address.slice(0, 4) + "..."}
           </Text>
         </div>
-        <Badge variant="outline">{props.feedEvent.__typename}</Badge>
+        <div>
+          <Badge variant="outline">{props.feedEvent.__typename}</Badge>
+          <Text weight={400}>
+            {DateTime.fromISO(props.feedEvent.createdAt).toRelative()}
+          </Text>
+        </div>
       </Group>
+      <a href={"https://holaplex.com/nfts/" + nft.address}>
+        <Group mt="xs">
+          <Button radius="md" fullWidth style={{ flex: 1 }}>
+            View on Holaplex
+          </Button>
+          {/* <ActionIcon variant="default" radius="md" size={36}>
+          <Heart size={18} className={classes.like} />
+        </ActionIcon> */}
+        </Group>
+      </a>
     </Card>
   );
 }

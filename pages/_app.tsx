@@ -1,6 +1,7 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { MantineProvider } from "@mantine/core";
+import { NotificationsProvider } from "@mantine/notifications";
 
 import { createClient, Provider } from "urql";
 import Head from "next/head";
@@ -29,7 +30,9 @@ function MyApp({ Component, pageProps }: AppProps) {
             colorScheme: "dark",
           }}
         >
-          <Component {...pageProps} />
+          <NotificationsProvider>
+            <Component {...pageProps} />
+          </NotificationsProvider>
         </MantineProvider>
       </Provider>
     </>

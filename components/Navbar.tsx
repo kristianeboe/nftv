@@ -6,6 +6,7 @@ import {
   ActionIcon,
   Container,
   Burger,
+  Button,
 } from "@mantine/core";
 import { useBooleanToggle } from "@mantine/hooks";
 import { BrandTwitter, BrandYoutube, BrandInstagram } from "tabler-icons-react";
@@ -119,10 +120,14 @@ export function Navbar({ links }: NavbarProps) {
         </Group>
 
         {/* <MantineLogo /> */}
-        <h1>Solana events</h1>
+        <h1>NFTstream</h1>
 
         <Group spacing={0} className={classes.social} position="right" noWrap>
-          <ActionIcon size="lg">
+          <Button variant="gradient" gradient={{ from: "indigo", to: "cyan" }}>
+            Get your personal feed on Holaplex.com/alpha
+          </Button>
+
+          {/* <ActionIcon size="lg">
             <BrandTwitter size={18} />
           </ActionIcon>
           <ActionIcon size="lg">
@@ -130,7 +135,7 @@ export function Navbar({ links }: NavbarProps) {
           </ActionIcon>
           <ActionIcon size="lg">
             <BrandInstagram size={18} />
-          </ActionIcon>
+          </ActionIcon> */}
         </Group>
       </Container>
     </Header>
