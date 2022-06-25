@@ -287,10 +287,7 @@ function HomePage() {
                   <InView
                     as="div"
                     threshold={0.1}
-                    onChange={(inView) =>
-                      console.log(i, "in view", inView) ||
-                      fetchMoreEvents(inView)
-                    }
+                    onChange={(inView) => fetchMoreEvents(inView)}
                   ></InView>
                 )}
                 <p>
