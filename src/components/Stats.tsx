@@ -69,12 +69,12 @@ export function StatsGroup({ data }: StatsGroupProps) {
   useInterval(() => setNftsViewed(nftsViewed + 1), 3000);
 
   const statsData = [
-    ...data,
     {
       title: "NFTs viewed",
       stats: "" + nftsViewed,
       description: "",
     },
+    ...data,
   ];
 
   const stats = statsData.map((stat) => (
