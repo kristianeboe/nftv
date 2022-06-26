@@ -19,7 +19,11 @@ export default function HeadTag() {
       />
 
       <meta key="og:type" property="og:type" content="website" />
-      <meta key="og:url" property="og:url" content="https://metatags.io/" />
+      <meta
+        key="og:url"
+        property="og:url"
+        content="https://nfttv.vercel.app/"
+      />
       <meta
         key="og:title"
         property="og:title"
@@ -33,7 +37,7 @@ export default function HeadTag() {
       <meta
         key="og:image"
         property="og:image"
-        content="https://metatags.io/assets/meta-tags-16a33a6a8531e519cc0936fbba0ad904e52d35f34a46c97a2c9f6f7dd7d336f2.png"
+        content="https://nfttv.vercel.app/nftv.png"
       />
 
       <meta
@@ -44,7 +48,7 @@ export default function HeadTag() {
       <meta
         key="twitter:url"
         property="twitter:url"
-        content="https://metatags.io/"
+        content="https://nfttv.vercel.app/"
       />
       <meta
         key="twitter:title"
@@ -59,7 +63,7 @@ export default function HeadTag() {
       <meta
         key="twitter:image"
         property="twitter:image"
-        content="https://metatags.io/assets/meta-tags-16a33a6a8531e519cc0936fbba0ad904e52d35f34a46c97a2c9f6f7dd7d336f2.png"
+        content="https://nfttv.vercel.app/nftv.png"
       />
     </Head>
   );

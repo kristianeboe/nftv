@@ -215,7 +215,7 @@ function HomePage() {
           ) : (
             <Center
               style={{
-                height: "80vh",
+                height: "40vh",
               }}
             >
               <LoadingSpinner />

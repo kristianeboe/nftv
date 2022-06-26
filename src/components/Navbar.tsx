@@ -98,10 +98,11 @@ export function Navbar({ links }: NavbarProps) {
       className={cx(classes.link, {
         [classes.linkActive]: active === link.link,
       })}
+      target="_blank"
       onClick={(event) => {
-        event.preventDefault();
         setActive(link.link);
       }}
+      rel="noreferrer"
     >
       {link.label}
     </a>
@@ -131,7 +132,11 @@ export function Navbar({ links }: NavbarProps) {
         </Title>
 
         <Group spacing={0} className={classes.social} position="right" noWrap>
-          <a href="https://holaplex.com/alpha">
+          <a
+            href="https://holaplex.com/alpha"
+            target={"_blank"}
+            rel="noreferrer"
+          >
             <Button
               variant="gradient"
               gradient={{ from: "indigo", to: "cyan" }}
