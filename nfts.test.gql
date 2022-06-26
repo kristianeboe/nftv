@@ -1,0 +1,183 @@
+query rawFeed(
+  $limit: Int!
+  $isForward: Boolean!
+  $cursor: String!
+  $includeTypes: [String!]
+) {
+  latestFeedEvents(
+    limit: $limit
+    isForward: $isForward
+    cursor: $cursor
+    includeTypes: $includeTypes
+  ) {
+    __typename
+    ... on MintEvent {
+      feedEventId
+      createdAt
+      walletAddress
+      profile {
+        handle
+        profileImageUrlLowres
+        __typename
+      }
+      nft {
+        address
+        mintAddress
+        name
+        image(width: 600)
+        description
+        owner {
+          address
+          associatedTokenAccountAddress
+          twitterHandle
+          __typename
+        }
+        sellerFeeBasisPoints
+        primarySaleHappened
+        creators {
+          address
+          position
+          profile {
+            handle
+            profileImageUrlLowres
+            __typename
+          }
+          __typename
+        }
+        address
+        mintAddress
+        __typename
+      }
+      __typename
+    }
+    ... on OfferEvent {
+      feedEventId
+      createdAt
+      walletAddress
+      profile {
+        handle
+        profileImageUrlLowres
+        __typename
+      }
+      offer {
+        auctionHouse
+        nft {
+          address
+          mintAddress
+          name
+          image(width: 600)
+          description
+          owner {
+            address
+            associatedTokenAccountAddress
+            twitterHandle
+            __typename
+          }
+          sellerFeeBasisPoints
+          primarySaleHappened
+          creators {
+            address
+            position
+            profile {
+              handle
+              profileImageUrlLowres
+              __typename
+            }
+            __typename
+          }
+          address
+          mintAddress
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    ... on PurchaseEvent {
+      feedEventId
+      createdAt
+      walletAddress
+      profile {
+        handle
+        profileImageUrlLowres
+        __typename
+      }
+      purchase {
+        auctionHouse
+        nft {
+          address
+          mintAddress
+          name
+          image(width: 600)
+          description
+          owner {
+            address
+            associatedTokenAccountAddress
+            twitterHandle
+            __typename
+          }
+          sellerFeeBasisPoints
+          primarySaleHappened
+          creators {
+            address
+            position
+            profile {
+              handle
+              profileImageUrlLowres
+              __typename
+            }
+            __typename
+          }
+          address
+          mintAddress
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    ... on ListingEvent {
+      feedEventId
+      createdAt
+      walletAddress
+      profile {
+        handle
+        profileImageUrlLowres
+        __typename
+      }
+      listing {
+        auctionHouse
+        nft {
+          address
+          mintAddress
+          name
+          image(width: 600)
+          description
+          owner {
+            address
+            associatedTokenAccountAddress
+            twitterHandle
+            __typename
+          }
+          sellerFeeBasisPoints
+          primarySaleHappened
+          creators {
+            address
+            position
+            profile {
+              handle
+              profileImageUrlLowres
+              __typename
+            }
+            __typename
+          }
+          address
+          mintAddress
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+  }
+}

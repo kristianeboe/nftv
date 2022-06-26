@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { GasStation, Gauge, ManualGearbox, Users } from "tabler-icons-react";
 import { DateTime } from "luxon";
-import { FeedEvent } from "../pages";
+import { FeedEvent } from "../interfaces";
 
 const useStyles = createStyles((theme) => ({
   card: {

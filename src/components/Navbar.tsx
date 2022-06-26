@@ -7,6 +7,7 @@ import {
   Container,
   Burger,
   Button,
+  Title,
 } from "@mantine/core";
 import { useBooleanToggle } from "@mantine/hooks";
 import { BrandTwitter, BrandYoutube, BrandInstagram } from "tabler-icons-react";
@@ -120,7 +121,14 @@ export function Navbar({ links }: NavbarProps) {
         </Group>
 
         {/* <MantineLogo /> */}
-        <h1>HolaTV</h1>
+        <Title
+          style={{
+            fontFamily: "Audiowide",
+          }}
+          order={1}
+        >
+          NFTv
+        </Title>
 
         <Group spacing={0} className={classes.social} position="right" noWrap>
           <a href="https://holaplex.com/alpha">

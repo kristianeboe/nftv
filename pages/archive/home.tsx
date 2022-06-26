@@ -1,30 +1,94 @@
-import {
-  Affix,
-  Alert,
-  Button,
-  Center,
-  Container,
-  Paper,
-  Text,
-} from "@mantine/core";
+import { Affix, Button, Center, Container, Paper, Text } from "@mantine/core";
+import type { NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
 import { useQuery } from "urql";
-import { FeedCard } from "../src/components/FeedCard";
-import { Navbar } from "../src/components/Navbar";
+
 import { useEffect, useRef, useState } from "react";
+import { useWindowScroll } from "@mantine/hooks";
+import { useIntersection } from "@mantine/hooks";
 import Marquee from "react-fast-marquee";
 import { InView } from "react-intersection-observer";
-import { StatsGroup } from "../src/components/Stats";
-import { FeedEvent, FeedQuery } from "../src/interfaces";
-import { RAW_FEED_QUERY } from "../src/graphql";
-import HeadTag from "../src/components/HeadTag";
-import { AlertCircle } from "tabler-icons-react";
+import { showNotification } from "@mantine/notifications";
+import { StatsGroup } from "../../src/components/Stats";
+import { ButtonsGroup } from "../../src/components/ButtonGroup";
+import { FixedSizeList as List } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
+import { FeedEvent, FeedQuery } from "../../src/interfaces";
+import { Navbar } from "../../src/components/Navbar";
 
-const fetchLimit = 200;
-const fetchNewLimit = 50;
-const includeTypes = ["mint"];
+const FEED_EVENT_BASE_FRAGMENT = `
+    feedEventId
+    createdAt
+    walletAddress
+    profile {
+      handle
+      profileImageUrlLowres
+    }
+`;
+const NFT_FRAGMENT = `
+    nft {
+      address
+      mintAddress
+      name
+      image(width: 600)
+      description
+      owner {
+        address
+        associatedTokenAccountAddress
+        twitterHandle
+      }
+      sellerFeeBasisPoints
+      primarySaleHappened
+      creators {
+        address
+        position
+        profile {
+          handle
+          profileImageUrlLowres
+        }
+      }
+      address
+      mintAddress
+    }
+`;
 
-function HomePage() {
+const RAW_FEED_QUERY = `
+  query rawFeed($limit: Int!, $isForward: Boolean!, $cursor: String!, $includeTypes: [String!] ) {
+    latestFeedEvents(limit: $limit, isForward: $isForward, cursor: $cursor, includeTypes: $includeTypes ) {
+      __typename
+      ... on MintEvent {
+        ${FEED_EVENT_BASE_FRAGMENT}
+        ${NFT_FRAGMENT}
+      }
+      ... on OfferEvent {
+        ${FEED_EVENT_BASE_FRAGMENT}
+        offer {
+          auctionHouse
+          ${NFT_FRAGMENT}
+        }
+      }
+      ... on PurchaseEvent {
+        ${FEED_EVENT_BASE_FRAGMENT}
+        purchase {
+          auctionHouse
+          ${NFT_FRAGMENT}
+        }
+      }
+      ... on ListingEvent {
+        ${FEED_EVENT_BASE_FRAGMENT}
+        listing {
+          auctionHouse
+          ${NFT_FRAGMENT}
+        }
+      }
+    }
+  }
+`;
+
+const fetchLimit = 100;
+
+export default function OldHomePage() {
   const [lastQueryTimeStamp, setLastQueryTimeStamp] = useState(() =>
     new Date().toISOString()
   );
@@ -32,7 +96,7 @@ function HomePage() {
     limit: fetchLimit,
     isForward: false,
     cursor: lastQueryTimeStamp,
-    includeTypes: includeTypes,
+    includeTypes: ["mint"],
   });
   const [timeTofetchNewEvents, setTimeToFetchNewEvents] = useState(false);
   const [result, reexecuteQuery] = useQuery<FeedQuery>({
@@ -49,10 +113,9 @@ function HomePage() {
   const [newEventsQuery, getMoreNewEvents] = useQuery<FeedQuery>({
     query: RAW_FEED_QUERY,
     variables: {
-      limit: fetchNewLimit,
+      limit: 50,
       isForward: true,
       cursor: events[0]?.createdAt,
-      includeTypes: includeTypes,
     },
     pause: true,
   });
@@ -71,7 +134,7 @@ function HomePage() {
       // console.log("rexecuting query");
       // reexecuteQuery({ requestPolicy: "network-only" });
       getMoreNewEvents({ requestPolicy: "network-only" });
-    }, 120 * 1000);
+    }, 60 * 1000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -100,7 +163,10 @@ function HomePage() {
 
   useEffect(() => {
     const feedEvents = data?.latestFeedEvents ?? [];
-
+    // console.log("fetch effect", {
+    //   fetching,
+    //   feedEvents,
+    // });
     if (!fetching && data) {
       const newEvents = feedEvents
         // make unique
@@ -127,7 +193,7 @@ function HomePage() {
     }
   }, [result]);
 
-  const fetchMoreIndex = events.length - 25;
+  const fetchMoreIndex = events.length - 5;
 
   function fetchMoreEvents(inView: boolean) {
     if (inView) {
@@ -136,20 +202,14 @@ function HomePage() {
         ...queryVars,
         cursor: events.at(-1)?.createdAt!,
       });
-    }
-  }
-
-  useEffect(() => {
-    if (!fetching) {
       reexecuteQuery({
         requestPolicy: "network-only",
       });
     }
-  }, [queryVars]);
+  }
 
   return (
     <div>
-      <HeadTag />
       <div
         style={{
           minHeight: "100vh",
@@ -167,25 +227,57 @@ function HomePage() {
             },
           ]}
         />
-
+        {/* <Container mb={40}>
+          <ButtonsGroup
+            buttons={[
+              {
+                label: "Mints",
+                onClick: () => {
+                  setQueryVars({ ...queryVars, includeTypes: ["mint"] }),
+                    reexecuteQuery({ requestPolicy: "network-only" });
+                },
+              },
+              {
+                label: "Offers",
+                onClick: () => {
+                  setQueryVars({ ...queryVars, includeTypes: ["offer"] }),
+                    reexecuteQuery({ requestPolicy: "network-only" });
+                },
+              },
+              {
+                label: "Purchases",
+                onClick: () => {
+                  setQueryVars({ ...queryVars, includeTypes: ["purchase"] }),
+                    reexecuteQuery({ requestPolicy: "network-only" });
+                },
+              },
+              {
+                label: "Listings",
+                onClick: () => {
+                  setQueryVars({ ...queryVars, includeTypes: ["listing"] }),
+                    reexecuteQuery({ requestPolicy: "network-only" });
+                },
+              },
+            ]}
+          />
+        </Container> */}
+        {/* <p>Total events: {fetching ? "fetching" : events.length}</p>
+      <p>
+        New events since arrival:{" "}
+        {gettingMoreItems ? "fetching" : newEvents.length}
+      </p> */}
         <div>
-          {events.length ? (
-            <Marquee
-              pauseOnClick={true}
-              speed={events.length ? 150 : 0}
-              gradient={false}
-              // pauseOnHover={true}
-            >
-              <div
-                style={{
-                  display: "grid",
-                  gridAutoFlow: "column",
-                  gap: "24px",
-                  margin: "0 24px",
-                  // overflow: "scroll",
-                }}
+          {error && <Text align="center">{error.message}</Text>}
+          {/* <AutoSizer>
+            {({ height, width }) => (
+              <List
+                height={height}
+                itemCount={events.length}
+                itemSize={600}
+                layout="horizontal"
+                width={width}
               >
-                {events.map((fi, i) => (
+                {events?.map((fi, i) => (
                   <div
                     data-has-ref={i === fetchMoreIndex ? true : false}
                     className="w-96 flex-shrink-0"
@@ -198,10 +290,64 @@ function HomePage() {
                         onChange={(inView) => fetchMoreEvents(inView)}
                       ></InView>
                     )}
+
                     <FeedCard feedEvent={fi} key={fi.feedEventId} />
                   </div>
                 ))}
+              </List>
+            )}
+          </AutoSizer> */}
+
+          {events.length ? (
+            <Marquee
+              pauseOnClick={true}
+              speed={events.length ? 200 : 0}
+              gradient={false}
+              // pauseOnHover={true}
+            >
+              {/* <div
+                // className={
+                //   "grid grid-flow-col gap-8 overflow-x-scroll py-2 pl-8 no-scrollbar"
+                // }
+                style={{
+                  display: "grid",
+                  gridAutoFlow: "column",
+                  gap: "24px",
+                  margin: "0 24px",
+                  // overflow: "scroll",
+                }}
+              > 
               </div>
+              */}
+              {/* <AutoSizer>
+                {({ height, width }) => (
+                  <List
+                    height={height}
+                    itemCount={events.length}
+                    itemSize={600}
+                    layout="horizontal"
+                    width={width}
+                  >
+                    {events.map((fi, i) => (
+                      <div
+                        data-has-ref={i === fetchMoreIndex ? true : false}
+                        className="w-96 flex-shrink-0"
+                        key={i}
+                      >
+                        {i === fetchMoreIndex && (
+                          <InView
+                            as="div"
+                            threshold={0.1}
+                            onChange={(inView) => fetchMoreEvents(inView)}
+                          ></InView>
+                        )}
+
+                        <FeedCard feedEvent={fi} key={fi.feedEventId} />
+                      </div>
+                    ))}
+                  </List>
+                )}
+              </AutoSizer> */}
             </Marquee>
           ) : (
             <Center>
@@ -246,12 +392,6 @@ function HomePage() {
           ]}
         />
       </Container>
-
-      {error && (
-        <Alert icon={<AlertCircle size={16} />} title="Bummer!" color="red">
-          {error.message}{" "}
-        </Alert>
-      )}
     </div>
   );
 }
@@ -332,5 +472,3 @@ function LoadingSpinner() {
     </svg>
   );
 }
-
-export default HomePage;
