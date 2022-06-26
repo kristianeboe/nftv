@@ -111,12 +111,12 @@ export function Navbar({ links }: NavbarProps) {
   return (
     <Header height={56} mb={40}>
       <Container className={classes.inner}>
-        <Burger
+        {/* <Burger
           opened={opened}
           onClick={() => toggleOpened()}
           size="sm"
           className={classes.burger}
-        />
+        /> */}
         <Group className={classes.links} spacing={5}>
           {items}
         </Group>

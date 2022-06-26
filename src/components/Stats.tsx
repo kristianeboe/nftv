@@ -64,7 +64,7 @@ interface StatsGroupProps {
 export function StatsGroup({ data }: StatsGroupProps) {
   const { classes } = useStyles();
 
-  const [nftsViewed, setNftsViewed] = useState(4);
+  const [nftsViewed, setNftsViewed] = useState(0);
 
   useInterval(() => setNftsViewed(nftsViewed + 1), 3000);
 
