@@ -238,7 +238,7 @@ function HomePage() {
           ) : null}
         </div>
       </div>
-      <Container mb={200}>
+      <Container>
         <StatsGroup
           data={[
             {
