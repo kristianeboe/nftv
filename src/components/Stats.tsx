@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createStyles, Text } from "@mantine/core";
 
 const useStyles = createStyles((theme) => ({
@@ -63,7 +63,21 @@ interface StatsGroupProps {
 
 export function StatsGroup({ data }: StatsGroupProps) {
   const { classes } = useStyles();
-  const stats = data.map((stat) => (
+
+  const [nftsViewed, setNftsViewed] = useState(4);
+
+  useInterval(() => setNftsViewed(nftsViewed + 1), 3000);
+
+  const statsData = [
+    ...data,
+    {
+      title: "NFTs viewed",
+      stats: "" + nftsViewed,
+      description: "",
+    },
+  ];
+
+  const stats = statsData.map((stat) => (
     <div key={stat.title} className={classes.stat}>
       <Text className={classes.count}>{stat.stats}</Text>
       <Text className={classes.title}>{stat.title}</Text>
@@ -71,4 +85,24 @@ export function StatsGroup({ data }: StatsGroupProps) {
     </div>
   ));
   return <div className={classes.root}>{stats}</div>;
+}
+
+function useInterval(callback: () => void, delay: number) {
+  const savedCallback = useRef<any>();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
 }

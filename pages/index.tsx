@@ -28,6 +28,15 @@ function HomePage() {
   const [lastQueryTimeStamp, setLastQueryTimeStamp] = useState(() =>
     new Date().toISOString()
   );
+
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     // updateNftsViewed();
+  //     setNftsViewed(nftsViewed + 1);
+  //   }, 3000);
+  //   return () => clearInterval(intervalId);
+  // }, []);
+
   const [queryVars, setQueryVars] = useState({
     limit: fetchLimit,
     isForward: false,
@@ -152,7 +161,7 @@ function HomePage() {
       <HeadTag />
       <div
         style={{
-          minHeight: "100vh",
+          minHeight: "80vh",
         }}
       >
         <Navbar
@@ -204,7 +213,11 @@ function HomePage() {
               </div>
             </Marquee>
           ) : (
-            <Center>
+            <Center
+              style={{
+                height: "80vh",
+              }}
+            >
               <LoadingSpinner />
             </Center>
           )}
@@ -229,17 +242,18 @@ function HomePage() {
         <StatsGroup
           data={[
             {
-              title: "Events loaded",
+              title: "NFTs loaded",
               stats: "" + eventsLoaded,
               description: "",
             },
+
             {
               title: "New events waiting",
               stats: "" + newEvents.length,
               description: "",
             },
             {
-              title: "Events displayed right now",
+              title: "Events in memory rn",
               stats: "" + events.length,
               description: "",
             },
