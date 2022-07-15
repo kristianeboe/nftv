@@ -40,35 +40,46 @@ const AH_FRAGMENT = `
     }
 `;
 
-export const RAW_FEED_QUERY = `
-  query rawFeed($limit: Int!, $isForward: Boolean!, $cursor: String!, $includeTypes: [String!] ) {
-    latestFeedEvents(limit: $limit, isForward: $isForward, cursor: $cursor, includeTypes: $includeTypes ) {
-      __typename
-      ... on MintEvent {
-        ${FEED_EVENT_BASE_FRAGMENT}
+const LATEST_FEED_EVENTS = `
+  latestFeedEvents(limit: $limit, isForward: $isForward, cursor: $cursor, includeTypes: $includeTypes ) {
+    __typename
+    ... on MintEvent {
+      ${FEED_EVENT_BASE_FRAGMENT}
+      ${NFT_FRAGMENT}
+    }
+    ... on OfferEvent {
+      ${FEED_EVENT_BASE_FRAGMENT}
+      offer {
+        ${AH_FRAGMENT}
         ${NFT_FRAGMENT}
       }
-      ... on OfferEvent {
-        ${FEED_EVENT_BASE_FRAGMENT}
-        offer {
-          ${AH_FRAGMENT}
-          ${NFT_FRAGMENT}
-        }
-      }
-      ... on PurchaseEvent {
-        ${FEED_EVENT_BASE_FRAGMENT}
-        purchase {
-          ${AH_FRAGMENT}
-          ${NFT_FRAGMENT}
-        }
-      }
-      ... on ListingEvent {
-        ${FEED_EVENT_BASE_FRAGMENT}
-        listing {
-          ${AH_FRAGMENT}
-          ${NFT_FRAGMENT}
-        }
+    }
+    ... on PurchaseEvent {
+      ${FEED_EVENT_BASE_FRAGMENT}
+      purchase {
+        ${AH_FRAGMENT}
+        ${NFT_FRAGMENT}
       }
     }
+    ... on ListingEvent {
+      ${FEED_EVENT_BASE_FRAGMENT}
+      listing {
+        ${AH_FRAGMENT}
+        ${NFT_FRAGMENT}
+      }
+    }
+  }`;
+
+export const RAW_FEED_QUERY = `
+  query rawFeed($limit: Int!, $isForward: Boolean!, $cursor: String!, $includeTypes: [String!] ) {
+    ${LATEST_FEED_EVENTS}
+  }
+`;
+
+export const RAW_FEED_QUERY2 = `
+  query rawFeed($limit: Int!, $isForward: Boolean!, $cursor: String!, $includeTypes: [String!] ) {
+   mints: ${LATEST_FEED_EVENTS}
+
+   listings: ${LATEST_FEED_EVENTS}
   }
 `;
