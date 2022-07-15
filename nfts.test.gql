@@ -60,7 +60,9 @@ query rawFeed(
         __typename
       }
       offer {
-        auctionHouse
+        auctionHouse {
+          address
+        }
         nft {
           address
           mintAddress
@@ -103,7 +105,9 @@ query rawFeed(
         __typename
       }
       purchase {
-        auctionHouse
+        auctionHouse {
+          address
+        }
         nft {
           address
           mintAddress
@@ -146,7 +150,9 @@ query rawFeed(
         __typename
       }
       listing {
-        auctionHouse
+        auctionHouse {
+          address
+        }
         nft {
           address
           mintAddress

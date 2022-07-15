@@ -34,6 +34,12 @@ const NFT_FRAGMENT = `
     }
 `;
 
+const AH_FRAGMENT = `
+    auctionHouse {
+      address
+    }
+`;
+
 export const RAW_FEED_QUERY = `
   query rawFeed($limit: Int!, $isForward: Boolean!, $cursor: String!, $includeTypes: [String!] ) {
     latestFeedEvents(limit: $limit, isForward: $isForward, cursor: $cursor, includeTypes: $includeTypes ) {
@@ -45,21 +51,21 @@ export const RAW_FEED_QUERY = `
       ... on OfferEvent {
         ${FEED_EVENT_BASE_FRAGMENT}
         offer {
-          auctionHouse
+          ${AH_FRAGMENT}
           ${NFT_FRAGMENT}
         }
       }
       ... on PurchaseEvent {
         ${FEED_EVENT_BASE_FRAGMENT}
         purchase {
-          auctionHouse
+          ${AH_FRAGMENT}
           ${NFT_FRAGMENT}
         }
       }
       ... on ListingEvent {
         ${FEED_EVENT_BASE_FRAGMENT}
         listing {
-          auctionHouse
+          ${AH_FRAGMENT}
           ${NFT_FRAGMENT}
         }
       }

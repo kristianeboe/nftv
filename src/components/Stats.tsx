@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createStyles, Text } from "@mantine/core";
+import { FeedEvent } from "../interfaces";
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -58,15 +59,16 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface StatsGroupProps {
+  events: FeedEvent[];
   data: { title: string; stats: string; description: string }[];
 }
 
-export function StatsGroup({ data }: StatsGroupProps) {
+export function StatsGroup({ events, data }: StatsGroupProps) {
   const { classes } = useStyles();
 
   const [nftsViewed, setNftsViewed] = useState(0);
 
-  useInterval(() => setNftsViewed(nftsViewed + 1), 3000);
+  useInterval(() => setNftsViewed(nftsViewed + (events.length ? 1 : 0)), 3000);
 
   const statsData = [
     {

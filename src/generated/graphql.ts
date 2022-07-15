@@ -20,7 +20,7 @@ export type Scalars = {
 
 export type AhListing = {
   __typename?: 'AhListing';
-  auctionHouse: Scalars['PublicKey'];
+  auctionHouse?: Maybe<AuctionHouse>;
   canceledAt?: Maybe<Scalars['DateTimeUtc']>;
   createdAt: Scalars['DateTimeUtc'];
   id: Scalars['Uuid'];
@@ -84,7 +84,7 @@ export type Bid = {
 export type BidReceipt = {
   __typename?: 'BidReceipt';
   address: Scalars['String'];
-  auctionHouse: Scalars['PublicKey'];
+  auctionHouse?: Maybe<AuctionHouse>;
   bookkeeper: Scalars['PublicKey'];
   bump: Scalars['Int'];
   buyer: Scalars['PublicKey'];
@@ -150,6 +150,7 @@ export type FollowEvent = {
   feedEventId: Scalars['String'];
   graphConnectionAddress: Scalars['PublicKey'];
   profile?: Maybe<TwitterProfile>;
+  wallet: Wallet;
   walletAddress: Scalars['PublicKey'];
 };
 
@@ -182,13 +183,14 @@ export type ListingEvent = {
   listing?: Maybe<AhListing>;
   listingId: Scalars['Uuid'];
   profile?: Maybe<TwitterProfile>;
+  wallet: Wallet;
   walletAddress: Scalars['PublicKey'];
 };
 
 export type ListingReceipt = {
   __typename?: 'ListingReceipt';
   address: Scalars['String'];
-  auctionHouse: Scalars['PublicKey'];
+  auctionHouse?: Maybe<AuctionHouse>;
   bookkeeper: Scalars['PublicKey'];
   bump: Scalars['Int'];
   canceledAt?: Maybe<Scalars['DateTimeUtc']>;
@@ -210,17 +212,16 @@ export type MarketStats = {
 
 export type Marketplace = {
   __typename?: 'Marketplace';
-  auctionHouse?: Maybe<AuctionHouse>;
-  auctionHouseAddress: Scalars['String'];
+  auctionHouses: Array<AuctionHouse>;
   bannerUrl: Scalars['String'];
-  configAddress: Scalars['String'];
+  configAddress: Scalars['PublicKey'];
   creators: Array<StoreCreator>;
   description: Scalars['String'];
   logoUrl: Scalars['String'];
   name: Scalars['String'];
   ownerAddress: Scalars['String'];
   stats?: Maybe<MarketStats>;
-  storeAddress?: Maybe<Scalars['String']>;
+  storeAddress?: Maybe<Scalars['PublicKey']>;
   subdomain: Scalars['String'];
 };
 
@@ -241,12 +242,13 @@ export type MintEvent = {
   metadataAddress: Scalars['PublicKey'];
   nft?: Maybe<Nft>;
   profile?: Maybe<TwitterProfile>;
+  wallet: Wallet;
   walletAddress: Scalars['PublicKey'];
 };
 
 export type MintStats = {
   __typename?: 'MintStats';
-  auctionHouse: Scalars['String'];
+  auctionHouse?: Maybe<AuctionHouse>;
   average?: Maybe<Scalars['U64']>;
   floor?: Maybe<Scalars['U64']>;
   mint: Scalars['String'];
@@ -258,12 +260,14 @@ export type Nft = {
   __typename?: 'Nft';
   activities: Array<NftActivity>;
   address: Scalars['String'];
+  animationUrl?: Maybe<Scalars['String']>;
   attributes: Array<NftAttribute>;
   category: Scalars['String'];
   collection?: Maybe<Nft>;
   createdAt?: Maybe<Scalars['DateTimeUtc']>;
   creators: Array<NftCreator>;
   description: Scalars['String'];
+  externalUrl?: Maybe<Scalars['String']>;
   files: Array<NftFile>;
   image: Scalars['String'];
   listings: Array<AhListing>;
@@ -296,7 +300,7 @@ export type NftActivity = {
   __typename?: 'NftActivity';
   activityType: Scalars['String'];
   address: Scalars['String'];
-  auctionHouse: Scalars['String'];
+  auctionHouse?: Maybe<AuctionHouse>;
   createdAt: Scalars['DateTimeUtc'];
   metadata: Scalars['PublicKey'];
   nft?: Maybe<Nft>;
@@ -360,7 +364,7 @@ export type NftsStats = {
 
 export type Offer = {
   __typename?: 'Offer';
-  auctionHouse: Scalars['PublicKey'];
+  auctionHouse?: Maybe<AuctionHouse>;
   buyer: Scalars['PublicKey'];
   canceledAt?: Maybe<Scalars['DateTimeUtc']>;
   createdAt: Scalars['DateTimeUtc'];
@@ -383,6 +387,7 @@ export type OfferEvent = {
   offer?: Maybe<Offer>;
   offerId: Scalars['Uuid'];
   profile?: Maybe<TwitterProfile>;
+  wallet: Wallet;
   walletAddress: Scalars['PublicKey'];
 };
 
@@ -407,7 +412,7 @@ export type ProfilesStats = {
 
 export type Purchase = {
   __typename?: 'Purchase';
-  auctionHouse: Scalars['PublicKey'];
+  auctionHouse?: Maybe<AuctionHouse>;
   buyer: Scalars['PublicKey'];
   createdAt: Scalars['DateTimeUtc'];
   id: Scalars['Uuid'];
@@ -425,6 +430,7 @@ export type PurchaseEvent = {
   profile?: Maybe<TwitterProfile>;
   purchase?: Maybe<Purchase>;
   purchaseId: Scalars['Uuid'];
+  wallet: Wallet;
   walletAddress: Scalars['PublicKey'];
 };
 
@@ -582,6 +588,7 @@ export type QueryRootNftsArgs = {
   attributes?: InputMaybe<Array<AttributeFilter>>;
   auctionHouses?: InputMaybe<Array<Scalars['PublicKey']>>;
   collection?: InputMaybe<Scalars['PublicKey']>;
+  collections?: InputMaybe<Array<Scalars['PublicKey']>>;
   creators?: InputMaybe<Array<Scalars['PublicKey']>>;
   limit: Scalars['Int'];
   listed?: InputMaybe<Scalars['Boolean']>;
@@ -590,6 +597,7 @@ export type QueryRootNftsArgs = {
   owners?: InputMaybe<Array<Scalars['PublicKey']>>;
   term?: InputMaybe<Scalars['String']>;
   updateAuthorities?: InputMaybe<Array<Scalars['PublicKey']>>;
+  withOffers?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -712,7 +720,7 @@ export type RawFeedQueryVariables = Exact<{
 }>;
 
 
-export type RawFeedQuery = { __typename?: 'QueryRoot', latestFeedEvents: Array<{ __typename: 'FollowEvent' } | { __typename: 'ListingEvent', feedEventId: string, createdAt: any, walletAddress: any, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null, listing?: { __typename: 'AhListing', auctionHouse: any, nft?: { __typename: 'Nft', address: string, mintAddress: string, name: string, image: string, description: string, sellerFeeBasisPoints: number, primarySaleHappened: boolean, owner?: { __typename: 'NftOwner', address: string, associatedTokenAccountAddress: string, twitterHandle?: string | null } | null, creators: Array<{ __typename: 'NftCreator', address: string, position?: number | null, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null }> } | null } | null } | { __typename: 'MintEvent', feedEventId: string, createdAt: any, walletAddress: any, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null, nft?: { __typename: 'Nft', address: string, mintAddress: string, name: string, image: string, description: string, sellerFeeBasisPoints: number, primarySaleHappened: boolean, owner?: { __typename: 'NftOwner', address: string, associatedTokenAccountAddress: string, twitterHandle?: string | null } | null, creators: Array<{ __typename: 'NftCreator', address: string, position?: number | null, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null }> } | null } | { __typename: 'OfferEvent', feedEventId: string, createdAt: any, walletAddress: any, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null, offer?: { __typename: 'Offer', auctionHouse: any, nft?: { __typename: 'Nft', address: string, mintAddress: string, name: string, image: string, description: string, sellerFeeBasisPoints: number, primarySaleHappened: boolean, owner?: { __typename: 'NftOwner', address: string, associatedTokenAccountAddress: string, twitterHandle?: string | null } | null, creators: Array<{ __typename: 'NftCreator', address: string, position?: number | null, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null }> } | null } | null } | { __typename: 'PurchaseEvent', feedEventId: string, createdAt: any, walletAddress: any, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null, purchase?: { __typename: 'Purchase', auctionHouse: any, nft?: { __typename: 'Nft', address: string, mintAddress: string, name: string, image: string, description: string, sellerFeeBasisPoints: number, primarySaleHappened: boolean, owner?: { __typename: 'NftOwner', address: string, associatedTokenAccountAddress: string, twitterHandle?: string | null } | null, creators: Array<{ __typename: 'NftCreator', address: string, position?: number | null, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null }> } | null } | null }> };
+export type RawFeedQuery = { __typename?: 'QueryRoot', latestFeedEvents: Array<{ __typename: 'FollowEvent' } | { __typename: 'ListingEvent', feedEventId: string, createdAt: any, walletAddress: any, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null, listing?: { __typename: 'AhListing', auctionHouse?: { __typename?: 'AuctionHouse', address: string } | null, nft?: { __typename: 'Nft', address: string, mintAddress: string, name: string, image: string, description: string, sellerFeeBasisPoints: number, primarySaleHappened: boolean, owner?: { __typename: 'NftOwner', address: string, associatedTokenAccountAddress: string, twitterHandle?: string | null } | null, creators: Array<{ __typename: 'NftCreator', address: string, position?: number | null, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null }> } | null } | null } | { __typename: 'MintEvent', feedEventId: string, createdAt: any, walletAddress: any, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null, nft?: { __typename: 'Nft', address: string, mintAddress: string, name: string, image: string, description: string, sellerFeeBasisPoints: number, primarySaleHappened: boolean, owner?: { __typename: 'NftOwner', address: string, associatedTokenAccountAddress: string, twitterHandle?: string | null } | null, creators: Array<{ __typename: 'NftCreator', address: string, position?: number | null, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null }> } | null } | { __typename: 'OfferEvent', feedEventId: string, createdAt: any, walletAddress: any, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null, offer?: { __typename: 'Offer', auctionHouse?: { __typename?: 'AuctionHouse', address: string } | null, nft?: { __typename: 'Nft', address: string, mintAddress: string, name: string, image: string, description: string, sellerFeeBasisPoints: number, primarySaleHappened: boolean, owner?: { __typename: 'NftOwner', address: string, associatedTokenAccountAddress: string, twitterHandle?: string | null } | null, creators: Array<{ __typename: 'NftCreator', address: string, position?: number | null, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null }> } | null } | null } | { __typename: 'PurchaseEvent', feedEventId: string, createdAt: any, walletAddress: any, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null, purchase?: { __typename: 'Purchase', auctionHouse?: { __typename?: 'AuctionHouse', address: string } | null, nft?: { __typename: 'Nft', address: string, mintAddress: string, name: string, image: string, description: string, sellerFeeBasisPoints: number, primarySaleHappened: boolean, owner?: { __typename: 'NftOwner', address: string, associatedTokenAccountAddress: string, twitterHandle?: string | null } | null, creators: Array<{ __typename: 'NftCreator', address: string, position?: number | null, profile?: { __typename: 'TwitterProfile', handle: string, profileImageUrlLowres: string } | null }> } | null } | null }> };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -730,11 +738,9 @@ export default {
           {
             "name": "auctionHouse",
             "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "args": []
           },
@@ -1178,11 +1184,9 @@ export default {
           {
             "name": "auctionHouse",
             "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "args": []
           },
@@ -1645,6 +1649,18 @@ export default {
             "args": []
           },
           {
+            "name": "wallet",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Wallet",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
             "name": "walletAddress",
             "type": {
               "kind": "NON_NULL",
@@ -1893,6 +1909,18 @@ export default {
             "args": []
           },
           {
+            "name": "wallet",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Wallet",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
             "name": "walletAddress",
             "type": {
               "kind": "NON_NULL",
@@ -1924,11 +1952,9 @@ export default {
           {
             "name": "auctionHouse",
             "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "args": []
           },
@@ -2079,21 +2105,19 @@ export default {
         "name": "Marketplace",
         "fields": [
           {
-            "name": "auctionHouse",
-            "type": {
-              "kind": "OBJECT",
-              "name": "AuctionHouse",
-              "ofType": null
-            },
-            "args": []
-          },
-          {
-            "name": "auctionHouseAddress",
+            "name": "auctionHouses",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "AuctionHouse",
+                    "ofType": null
+                  }
+                }
               }
             },
             "args": []
@@ -2333,6 +2357,18 @@ export default {
             "args": []
           },
           {
+            "name": "wallet",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Wallet",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
             "name": "walletAddress",
             "type": {
               "kind": "NON_NULL",
@@ -2353,11 +2389,9 @@ export default {
           {
             "name": "auctionHouse",
             "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "args": []
           },
@@ -2441,6 +2475,14 @@ export default {
             "args": []
           },
           {
+            "name": "animationUrl",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
             "name": "attributes",
             "type": {
               "kind": "NON_NULL",
@@ -2512,6 +2554,14 @@ export default {
                 "kind": "SCALAR",
                 "name": "Any"
               }
+            },
+            "args": []
+          },
+          {
+            "name": "externalUrl",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
             },
             "args": []
           },
@@ -2710,11 +2760,9 @@ export default {
           {
             "name": "auctionHouse",
             "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "args": []
           },
@@ -3067,11 +3115,9 @@ export default {
           {
             "name": "auctionHouse",
             "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "args": []
           },
@@ -3266,6 +3312,18 @@ export default {
             "args": []
           },
           {
+            "name": "wallet",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Wallet",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
             "name": "walletAddress",
             "type": {
               "kind": "NON_NULL",
@@ -3394,11 +3452,9 @@ export default {
           {
             "name": "auctionHouse",
             "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "args": []
           },
@@ -3542,6 +3598,18 @@ export default {
               "ofType": {
                 "kind": "SCALAR",
                 "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "wallet",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Wallet",
+                "ofType": null
               }
             },
             "args": []
@@ -4335,6 +4403,19 @@ export default {
                 }
               },
               {
+                "name": "collections",
+                "type": {
+                  "kind": "LIST",
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Any"
+                    }
+                  }
+                }
+              },
+              {
                 "name": "creators",
                 "type": {
                   "kind": "LIST",
@@ -4418,6 +4499,13 @@ export default {
                       "name": "Any"
                     }
                   }
+                }
+              },
+              {
+                "name": "withOffers",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
                 }
               }
             ]

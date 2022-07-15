@@ -240,6 +240,7 @@ function HomePage() {
       </div>
       <Container>
         <StatsGroup
+          events={events}
           data={[
             {
               title: "NFTs loaded",

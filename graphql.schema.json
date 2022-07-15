@@ -16,13 +16,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "PublicKey",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -718,13 +714,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "PublicKey",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -1409,6 +1401,22 @@
             "deprecationReason": null
           },
           {
+            "name": "wallet",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Wallet",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "walletAddress",
             "description": null,
             "args": [],
@@ -1782,6 +1790,22 @@
             "deprecationReason": null
           },
           {
+            "name": "wallet",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Wallet",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "walletAddress",
             "description": null,
             "args": [],
@@ -1829,13 +1853,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "PublicKey",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -2055,28 +2075,24 @@
         "description": null,
         "fields": [
           {
-            "name": "auctionHouse",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "AuctionHouse",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "auctionHouseAddress",
+            "name": "auctionHouses",
             "description": null,
             "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "AuctionHouse",
+                    "ofType": null
+                  }
+                }
               }
             },
             "isDeprecated": false,
@@ -2107,7 +2123,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "PublicKey",
                 "ofType": null
               }
             },
@@ -2220,7 +2236,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "PublicKey",
               "ofType": null
             },
             "isDeprecated": false,
@@ -2421,6 +2437,22 @@
             "deprecationReason": null
           },
           {
+            "name": "wallet",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Wallet",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "walletAddress",
             "description": null,
             "args": [],
@@ -2452,13 +2484,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -2589,6 +2617,18 @@
             "deprecationReason": null
           },
           {
+            "name": "animationUrl",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "attributes",
             "description": null,
             "args": [],
@@ -2688,6 +2728,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "externalUrl",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -2969,13 +3021,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -3491,13 +3539,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "PublicKey",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -3778,6 +3822,22 @@
             "deprecationReason": null
           },
           {
+            "name": "wallet",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Wallet",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "walletAddress",
             "description": null,
             "args": [],
@@ -3972,13 +4032,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "PublicKey",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "AuctionHouse",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -4184,6 +4240,22 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "Uuid",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "wallet",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Wallet",
                 "ofType": null
               }
             },
@@ -5341,6 +5413,26 @@
                 "deprecationReason": null
               },
               {
+                "name": "collections",
+                "description": null,
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "PublicKey",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "creators",
                 "description": null,
                 "type": {
@@ -5471,6 +5563,18 @@
                       "ofType": null
                     }
                   }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "withOffers",
+                "description": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
                 },
                 "defaultValue": null,
                 "isDeprecated": false,
